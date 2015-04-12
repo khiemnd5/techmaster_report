@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        
+        
+        <link rel="shortcut icon" href="../img/favicon.ico">
+
+        <title>Report Game - TechMaster Nguyễn Đăng Khiêm_ Vũ Công Hiếu</title>
+
+        <link href="../css/bootstrap-custom.min.css" rel="stylesheet">
+        <link href="../css/font-awesome-4.0.3.css" rel="stylesheet">
+        <link href="../css/base.css" rel="stylesheet">
+        <link rel="stylesheet" href="../css/highlight.css">
+
+        <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+        <!--[if lt IE 9]>
+            <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+            <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+        <![endif]-->
+
+        
+    </head>
+
+    <body>
+
+        <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+
+        <!-- Collapsed navigation -->
+        <div class="navbar-header">
+            
+            <!-- Expander button -->
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            
+
+            <!-- Main title -->
+            <a class="navbar-brand" href="..">TechMaster Nguyễn Đăng Khiêm_ Vũ Công Hiếu</a>
+        </div>
+
+        <!-- Expanded navigation -->
+        <div class="navbar-collapse collapse">
+            
+                <!-- Main navigation -->
+                <ul class="nav navbar-nav">
+                
+                
+                    <li class="active">
+                        <a href=".">Report Game</a>
+                    </li>
+                
+                
+                </ul>
+            
+
+            
+            <!-- Search, Navigation and Repo links -->
+            <ul class="nav navbar-nav navbar-right">
+                
+                
+                <li >
+                    <a rel="next" href="..">
+                        <i class="fa fa-arrow-left"></i> Previous
+                    </a>
+                </li>
+                <li class="disabled">
+                    <a rel="prev" >
+                        Next <i class="fa fa-arrow-right"></i>
+                    </a>
+                </li>
+                
+                
+                <li>
+                    <a href="http://nguyendangkhiemit.wordpress.com">
+                        
+                        Nguyendangkhiemit
+                    </a>
+                </li>
+                
+            </ul>
+            
+        </div>
+    </div>
+</div>
+
+        <div class="container">
+            
+                <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
+    <ul class="nav bs-sidenav">
+    
+        <li class="main active"><a href="#game-ai-la-trieu-phu">Game Ai Là Triệu Phú</a></li>
+        
+            <li><a href="#1-yeu-cau-bai-toan-su-dung-co-so-du-lieu-la-postgresql">1. Yêu cầu bài toán: (Sử dụng cơ sở dữ liệu là postgresql)</a></li>
+        
+            <li><a href="#2-y-tuong">2. Ý tưởng:</a></li>
+        
+            <li><a href="#3-cac-cau-lenh-tao-bang">3. Các câu lệnh tạo bảng:</a></li>
+        
+            <li><a href="#4-cac-cau-lenh-truy-van-giai-quyet-bai-toan">4. Các câu lệnh truy vấn giải quyết bài toán:</a></li>
+        
+    
+    </ul>
+</div></div>
+                <div class="col-md-9" role="main">
+
+<h1 id="game-ai-la-trieu-phu"><strong><em>Game Ai Là Triệu Phú</em></strong></h1>
+<h4 id="1-yeu-cau-bai-toan-su-dung-co-so-du-lieu-la-postgresql">1. Yêu cầu bài toán: (Sử dụng cơ sở dữ liệu là <strong><code>postgresql</code></strong>)</h4>
+<ul>
+<li>Mỗi câu hỏi có 4 đáp án và chỉ có 1 đáp án đúng. Giới hạn độ dài câu hỏi là 150 ký tự, độ dài đáp án là 50 ký tự.</li>
+<li>Có vấn đề mới phát sinh là có phân loại câu hỏi theo 3 mức: <strong> Dễ, Trung bình,Khó </strong>.</li>
+<li>Lưu được thông tin cấu hình cho game: Số tiền đạt được ứng với số câu hỏi trả lời được (Ví dụ: trả lời được 1 câu được 500k, 2 câu được 800k, …).</li>
+<li>Giả lập trợ giúp người chơi (50-50, trợ giúp từ khán giả, gọi điện cho người thân).</li>
+<li>Lưu thông tin người chơi bao gồm: Họ tên, Thời điểm chơi, Số tiền đạt được.</li>
+<li>Quản lý game cần thực hiện các chức năng quản lý</li>
+</ul>
+<h4 id="2-y-tuong">2. Ý tưởng:</h4>
+<ul>
+<li>Tạo 2 bảng cơ sở dữ liệu. Bảng 1 là bảng <code>questions</code> gồm các thuộc tính như sau: <strong>idQuestion</strong>, <strong>question</strong>, <strong>ask1</strong>, <strong>ask2</strong>,<strong>ask3</strong>, <strong>ask4</strong>,<strong>result</strong>, <strong>idLevel</strong>  Và bảng 2 là bảng <code>levels</code> gồm có.<strong>namelevel</strong>,<strong>idlevel</strong></li>
+<li>Mối quan hệ giữa 2 bảng là : <code>questions</code> và <code>levels</code> là mối quan hệ 1 nhiều thông qua khóa ngoại <strong>idLevel</strong></li>
+</ul>
+<h4 id="3-cac-cau-lenh-tao-bang">3. Các câu lệnh tạo bảng:</h4>
+<h5 id="cac-thanh-phan-cua-bang">Các thành phần của bảng.</h5>
+<p><img alt="image" src="../images/cautrucbang.PNG" title="db" /></p>
+<h5 id="tao-bang-questionstheo-yeu-cau-bai-toan-thi-levels-uoc-them-sau">Tạo bảng Questions(Theo yêu cầu bài toán thì levels được thêm sau)</h5>
+<pre><code>create table Questions(
+idQuestion serial not null,
+question character varying(150) not null,
+ask1 character varying(50) not null,
+ask2 character varying(50) not null,
+ask3 character varying(50) not null,
+ask4 character varying(50) not null,
+state character varying(50) not null,
+--idLevel integer not null,
+constraint questions_pkey primary key (idQuestion),
+constraint question unique (question)
+--constraint question_level_fkey foreign key (idLevel)
+--references Levels(idLevel)
+);
+</code></pre>
+
+<p><strong>Database questions</strong>
+<img alt="image" src="../images/dbq.PNG" title="db" /></p>
+<hr />
+<h5 id="tao-bao-levels">Tạo bảo levels</h5>
+<pre><code>create table Levels(
+idLevel serial not null,
+levelName character varying(10) not null,
+constraint idLevel_pkey primary key (idLevel)
+);
+</code></pre>
+
+<p><strong>Database level</strong>
+<img alt="image" src="../images/level.PNG" title="lv" /></p>
+<h4 id="4-cac-cau-lenh-truy-van-giai-quyet-bai-toan">4. Các câu lệnh truy vấn giải quyết bài toán:</h4>
+<ul>
+<li><strong>1.1 Câu lệnh insert 100 câu hỏi(chưa có level) viết hàm xử lý</strong></li>
+</ul>
+<pre><code>CREATE OR REPLACE
+FUNCTION auto_add_question(quantity integer)
+RETURNs void AS
+$BODY$
+declare 
+    i int;  x int; y int;
+BEGIN for i IN 1..$1 LOOP
+    x = round(random()*100);
+    y = round(random()*100);
+INSERT INTO questions(question,ask1,ask2,ask3,ask4,result) values
+    (CONCAT(x,'+',y,'=?'),x+y,x-y,x-y+1,x+y+1,x+y);
+--INSERT INTO questions(question,ask1,ask2,ask3,ask4,result,idLevel) values
+--  (CONCAT(x,'+',y,'=?'),x+y,x-y,x-y+1,x+y+1,x+y,1);
+--  (CONCAT(x,'+',y,'=?'),x+y,x-y,x-y+1,x+y+1,x+y,2);
+--  (CONCAT(x,'+',y,'=?'),x+y,x-y,x-y+1,x+y+1,x+y,3);
+END LOOP;
+END;
+$BODY$
+LANGUAGE plpgsql;
+
+
+select auto_add_question(100);
+
+</code></pre>
+
+<ul>
+<li><strong>1.2 Truy vấn 1 câu hỏi bất kỳ và lấy ra được nội dung câu hỏi, 4 đáp án, đáp án đúng:</strong></li>
+</ul>
+<pre><code>select q.question, q.ask1, q.ask2,q.ask3,q.ask4, q.result from questions q offset random()*100 limit 1;
+</code></pre>
+
+<p><strong>Database random </strong>
+<img alt="image" src="../images/random1q.PNG" title="lv" /></p>
+<ul>
+<li><strong> 1.3Truy vấn 1 câu hỏi bất kỳ và lấy ra được nội dung câu hỏi, 4 đáp án,đáp án đúng với dữ liệu với nội dữ liệu không trùng nhau (Sử dụng JSON):</strong></li>
+</ul>
+<pre><code>select row_to_json(row) from (select * from questions order by random()*100 limit 1) row;
+</code></pre>
+
+<p><strong>Database json </strong>
+<img alt="image" src="../images/json.PNG" title="lv" /></p>
+<ul>
+<li><strong>2.1 Hãy cập nhật thông tin bảng với yêu cầu mới thêm (Các bảng trước đó đã có và có dữ liệu):</strong></li>
+</ul>
+<pre><code>ALTER TABLE questions ADD COLUMN idLevel integer,
+ADD CONSTRAINT question_levels_fkey FOREIGN KEY (idLevel) REFERENCES Levels(idLevel);
+</code></pre>
+
+<ul>
+<li><strong>2.2 Truy vấn số lượng câu hỏi theo mỗi mức độ khó để kiểm tra số lượng câu hỏi cho mỗi mức độ khó đã bằng nhau chưa:</strong></li>
+</ul>
+<pre><code>select l.levelname, count(q.idLevel) as dem
+from levels as l  right join
+questions as q on l.idLevel=q.idLevel
+group by l.levelname;
+</code></pre>
+
+<p><strong>Database Show count level </strong>
+<img alt="image" src="../images/demlevel.PNG" title="lv" />
+* <strong>2.3 Truy vấn lấy ngẫu nhiên được 1 câu hỏi thuộc mức độ Dễ (Trung bình, Khó):</strong></p>
+<pre><code>select q.question,l.levelname 
+from questions q left join levels as l on l.idLevel=q.idLevel 
+offset random()*100 limit 1;
+</code></pre>
+
+<p><strong>Database random question level </strong>
+<img alt="image" src="../images/levelrandom.PNG" title="lv" /></p>
+<ul>
+<li><strong>2.4 Truy vấn lấy ra ngẫu nhiên 15 câu hỏi và sắp xếp theo thứ tự độ khó tăng dần (mỗi độ khó có 5 câu hỏi sử dụng UNION):</strong></li>
+</ul>
+<pre><code>(select question,idlevel from questions where idlevel = 1  ORDER BY random() LIMIT 5)
+UNION ALL
+(select question,idlevel from questions where idlevel = 2  ORDER BY random() LIMIT 5 )
+UNION ALL
+(select question ,idlevel from questions where idlevel = 3  ORDER BY random() LIMIT 5);
+</code></pre>
+
+<p><strong>Database union </strong>
+<img alt="image" src="../images/union.PNG" title="union" />
+* <strong>3.1 Nhập dữ liệu cấu hình cho game (15 mốc câu hỏi như Ai là triệu phú) (tạo bảng điểm)</strong></p>
+<pre><code>CREATE TABLE config(
+    id SERIAL NOT NULL ,
+    money INTEGER NOT NULL ,
+    CONSTRAINT config_pkey PRIMARY KEY (id)
+    );
+
+--insert du lieu
+    INSERT INTO config(money) VALUES (200000);
+    INSERT INTO config(money) VALUES (400000);
+    INSERT INTO config(money) VALUES (600000);
+    INSERT INTO config(money) VALUES (1000000);
+    INSERT INTO config(money) VALUES (2000000);
+    INSERT INTO config(money) VALUES (3000000);
+    INSERT INTO config(money) VALUES (6000000);
+    INSERT INTO config(money) VALUES (10000000);
+    INSERT INTO config(money) VALUES (14000000);
+    INSERT INTO config(money) VALUES (22000000);
+    INSERT INTO config(money) VALUES (30000000);
+    INSERT INTO config(money) VALUES (40000000);
+    INSERT INTO config(money) VALUES (60000000);
+    INSERT INTO config(money) VALUES (85000000);
+    INSERT INTO config(money) VALUES (150000000);
+....
+
+</code></pre>
+
+<ul>
+<li><strong>4.1 Truy vấn lấy được ngẫu nhiên 2 trong số 4 đáp án của 1 câu hỏi bất kỳ, trong đó bắt buộc phải chứa đáp án đúng:):</strong></li>
+</ul>
+<pre><code>CREATE OR REPLACE FUNCTION bo_di_2_phuong_an_sai(id INTEGER)
+   RETURNS TABLE(
+    name CHARACTER VARYING(150),
+    t CHARACTER VARYING(50),
+    f CHARACTER VARYING(50)
+   ) AS $$    
+DECLARE 
+     rand INTEGER;
+BEGIN
+    rand = round(random() * 10);
+     rand = rand % 3;
+    CASE 
+      WHEN rand = 0 THEN RETURN QUERY SELECT questions.question,ask1,ask2 FROM questions WHERE questions.idquestion = $1;
+      WHEN rand = 1 THEN RETURN QUERY SELECT questions.question,ask1,ask3 FROM questions WHERE questions.idquestion = $1;
+      ELSE RETURN QUERY SELECT questions.question,ask1,ask4 FROM questions WHERE questions.idquestion = $1;
+    END CASE;
+END 
+  $$
+LANGUAGE plpgsql;
+
+SELECT bo_di_2_phuong_an_sai(100);
+</code></pre>
+
+<ul>
+<li><strong>4.2 Truy vấn ngẫu nhiên tỉ lệ khán giả chọn đáp án của 1 câu hỏi theo % (Ví dụ: Đáp án A – 20%, B – 30%, C – 40%, D – 10%): </strong></li>
+</ul>
+<pre><code>--ham tao randoms
+ CREATE OR REPLACE FUNCTION randoms(numeric, numeric)
+   RETURNS numeric AS
+   $$
+    SELECT ($1 + ($2 - $1) * random())::numeric;
+ $$ LANGUAGE 'sql' VOLATILE;
+
+
+--4.2 Hoi y kien khan gia
+CREATE OR REPLACE FUNCTION hoi_y_kien_khan_gia()
+   RETURNS TABLE(
+       A INTEGER,
+       B INTEGER,
+       C INTEGER,
+       D INTEGER
+   ) AS $$
+ DECLARE 
+     d INTEGER;
+     a INTEGER;
+     b INTEGER;
+     c INTEGER;
+ BEGIN
+   d = 100;
+   a = round(randoms(0,d));
+   d = d - a;
+   b = round(randoms(0,d));
+   d = d - b;
+   c = round(randoms(0,d));
+   d = d - c;
+   RETURN QUERY
+     SELECT A,B,C,D;
+ END
+ $$
+   LANGUAGE plpgsql;
+ SELECT hoi_y_kien_khan_gia();
+
+</code></pre>
+
+<p><strong>Database hỏi khán giả </strong>
+<img alt="image" src="../images/hoikhangia.PNG" title="union" />
+* <strong>4.3 Truy vấn ngẫu nhiên đáp án cho 1 câu hỏi: 5đ (Câu hỏi gọi trợ giúp người thân) </strong></p>
+<pre><code>CREATE OR REPLACE FUNCTION goi_dien_thoai_cho_nguoi_than(id INTEGER)
+    returns TABLE(res CHARACTER VARYING(50)) AS $$
+    DECLARE 
+    rand INTEGER;
+    BEGIN 
+        rand = round(randoms(1,4));
+        CASE
+            WHEN rand = 1 THEN RETURN QUERY SELECT questions.ask1 FROM questions WHERE questions.idquestion= $1;
+            WHEN rand = 2 THEN RETURN QUERY SELECT questions.ask2 FROM questions WHERE questions.idquestion= $1;
+            WHEN rand = 3 THEN RETURN QUERY SELECT questions.ask3 FROM questions WHERE questions.idquestion= $1;
+            ELSE RETURN QUERY SELECT questions.ask4 FROM questions WHERE questions.idquestion = $1;
+        END CASE ;
+    END 
+    $$
+    LANGUAGE plpgsql;
+
+    SELECT goi_dien_thoai_cho_nguoi_than(54);
+</code></pre>
+
+<p><strong>Database gọi điện người thân </strong>
+<img alt="image" src="../images/goidiennguoithan.PNG" title="union" /></p>
+<ul>
+<li><strong>5.1 Nhập dữ liệu mẫu 100 người chơi:</strong></li>
+</ul>
+<pre><code>CREATE TABLE users(
+        id SERIAL NOT NULL ,
+        name CHARACTER VARYING(50) NOT NULL ,
+        starttime TIMESTAMP NOT NULL ,
+        money INTEGER NOT NULL,
+        CONSTRAINT users_pkey PRIMARY KEY (id)
+    )
+--tạo dữ liệu 100 người chơi
+CREATE OR REPLACE FUNCTION adduser()
+        RETURNS void AS $$
+        DECLARE 
+        ho CHARACTER VARYING(17);
+        dem CHARACTER VARYING(17);
+        ten CHARACTER VARYING(17);
+        rand INTEGER;
+    BEGIN 
+    FOR i IN 1..5
+        LOOP 
+            CASE 
+            WHEN i = 1 THEN ho = 'Nguyen';
+            WHEN i = 2 THEN ho = 'Le';
+            WHEN i = 3 THEN ho = 'Dang';
+            WHEN i = 4 THEN ho = 'Dinh';
+            ELSE ho = 'Tran';
+            END CASE ;
+    FOR j IN 1..5
+        LOOP
+            CASE
+            WHEN j = 1 THEN dem = 'Dang';
+            WHEN j = 2 THEN dem = 'Van';
+            WHEN j = 3 THEN dem = 'Thi';
+            WHEN j = 4 THEN dem = 'Cong';
+            ELSE dem = 'Hoang';
+            END CASE ;
+    FOR k IN 1..4
+        LOOP
+            CASE
+            WHEN k = 1 THEN ten = 'Trung';
+            WHEN k = 2 THEN ten = 'Cong';
+            WHEN k = 3 THEN ten = 'Khiem';
+            ELSE ten = 'Nam';
+            END CASE ;
+            rand = round(randoms(1,15));
+            INSERT INTO users(name,starttime,money) VALUES (concat(ho,' ',dem,' ',ten),now(),(SELECT money FROM config WHERE id = rand));
+            END LOOP ;
+        END LOOP ;
+    END LOOP ;
+    END 
+
+    $$
+    LANGUAGE plpgsql;
+
+    SELECT adduser();
+</code></pre>
+
+<p><strong>Database user </strong>
+<img alt="image" src="../images/randomuser.PNG" title="randomuser" />
+* <strong>5.2 Truy vấn lấy ra 10 người chơi đạt điểm cao nhất, sắp xếp theo thứ tựđiểm cao giảm dần (nếu 2 người chơi có cùng điểm số thì người chơi sau sẽ được xếp ở vị trí cao hơn):</strong></p>
+<pre><code>select * from config order by money desc limit 10;
+</code></pre>
+
+<p><strong>Database money top </strong>
+<img alt="image" src="../images/moneytop.PNG" title="moneytop" />
+* <strong>6.1 Tìm kiếm câu hỏi theo id, theo từ khóa trong câu hỏi, theo từ khóa trong câu trả lời:</strong></p>
+<pre><code>
+    CREATE OR REPLACE FUNCTION searchquestionss(n CHARACTER VARYING(50))
+        RETURNS TABLE(
+
+  question CHARACTER VARYING(150),
+        ask1 CHARACTER VARYING(50),
+        ask2 CHARACTER VARYING(50),
+        ask3 CHARACTER VARYING(50),
+        ask4 CHARACTER VARYING(50)
+        ) AS $$
+            DECLARE
+        ch CHARACTER VARYING(50);
+        BEGIN
+        ch = concat('%',$1,'%');
+        return QUERY 
+        SELECT questions.question,questions.ask1,questions.ask2,questions.ask3,questions.ask4
+        FROM questions 
+        WHERE 
+            questions.question LIKE ch
+           OR questions.ask1 LIKE ch
+           OR questions.ask2 LIKE ch
+           OR questions.ask3 LIKE ch
+           OR questions.ask4 LIKE ch;
+    END 
+
+    $$
+    LANGUAGE plpgsql;
+
+    SELECT searchquestionss('1');
+</code></pre>
+
+<p><strong>Database search question </strong>
+<img alt="image" src="../images/search.PNG" title="search" /></p>
+<p><strong> Một số ý có tham khảo các team trong lớp đặc biệt bạn <code>Lâm Đức Trung</code></strong></p>
+</div>
+            
+        </div>
+
+        <footer class="col-md-12">
+            <hr>
+            
+            <p>Documentation built with <a href="http://www.mkdocs.org/">MkDocs</a>.</p>
+        </footer>
+
+        
+
+        <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
+        <script src="../js/bootstrap-3.0.3.min.js"></script>
+        <script src="../js/prettify-1.0.min.js"></script>
+        <script src="../js/highlight.pack.js"></script>
+        <script src="../js/base.js"></script>
+    </body>
+</html>
