@@ -1,0 +1,6 @@
+site_name: TechMaster Nguyễn Đăng Khiêm_ Vũ Công Hiếu
+repo_url: http://nguyendangkhiemit.wordpress.com
+pages: 
+- ['index.md','Home']
+- ['Report.md','Report Game']
+# theme: yeti
