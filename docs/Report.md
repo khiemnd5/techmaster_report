@@ -1,6 +1,6 @@
 # ***Game Ai Là Triệu Phú***
 
-####1. Yêu cầu bài toán: 
+####1. Yêu cầu bài toán: (Sử dụng cơ sở dữ liệu là **`postgresql`**)
 
 * Mỗi câu hỏi có 4 đáp án và chỉ có 1 đáp án đúng. Giới hạn độ dài câu hỏi là 150 ký tự, độ dài đáp án là 50 ký tự.
 * Có vấn đề mới phát sinh là có phân loại câu hỏi theo 3 mức: ** Dễ, Trung bình,Khó **.
@@ -12,6 +12,9 @@
 * Tạo 2 bảng cơ sở dữ liệu. Bảng 1 là bảng `questions` gồm các thuộc tính như sau: **idQuestion**, **question**, **ask1**, **ask2**,**ask3**, **ask4**,**result**, **idLevel**  Và bảng 2 là bảng `levels` gồm có.**namelevel**,**idlevel**
 * Mối quan hệ giữa 2 bảng là : `questions` và `levels` là mối quan hệ 1 nhiều thông qua khóa ngoại **idLevel**
 ####3. Các câu lệnh tạo bảng:
+##### Các thành phần của bảng.
+
+![image](images/cautrucbang.PNG "db")
 
 
 ##### Tạo bảng Questions(Theo yêu cầu bài toán thì levels được thêm sau)
@@ -26,6 +29,7 @@ ask4 character varying(50) not null,
 state character varying(50) not null,
 --idLevel integer not null,
 constraint questions_pkey primary key (idQuestion),
+constraint question unique (question)
 --constraint question_level_fkey foreign key (idLevel)
 --references Levels(idLevel)
 );
@@ -58,13 +62,17 @@ BEGIN for i IN 1..$1 LOOP
 	y = round(random()*100);
 INSERT INTO questions(question,ask1,ask2,ask3,ask4,result) values
 	(CONCAT(x,'+',y,'=?'),x+y,x-y,x-y+1,x+y+1,x+y);
+--INSERT INTO questions(question,ask1,ask2,ask3,ask4,result,idLevel) values
+--  (CONCAT(x,'+',y,'=?'),x+y,x-y,x-y+1,x+y+1,x+y,1);
+--  (CONCAT(x,'+',y,'=?'),x+y,x-y,x-y+1,x+y+1,x+y,2);
+--  (CONCAT(x,'+',y,'=?'),x+y,x-y,x-y+1,x+y+1,x+y,3);
 END LOOP;
 END;
 $BODY$
 LANGUAGE plpgsql;
 
 
-select auto_add_question_math(100);
+select auto_add_question(100);
 
 ```
 * **1.2 Truy vấn 1 câu hỏi bất kỳ và lấy ra được nội dung câu hỏi, 4 đáp án, đáp án đúng:**
@@ -118,20 +126,33 @@ UNION ALL
 UNION ALL
 (select question ,idlevel from questions where idlevel = 3  ORDER BY random() LIMIT 5);
 ```
-
+**Database union **
+![image](images/union.PNG "union")
 * **3.1 Nhập dữ liệu cấu hình cho game (15 mốc câu hỏi như Ai là triệu phú) (tạo bảng điểm)**
 
 ```
-create table goals(
- idGoal serial Not Null,
-  money character varying(100) NOT NULL,
-  CONSTRAINT topic_pkey PRIMARY KEY(idGoal)
-);
+CREATE TABLE config(
+    id SERIAL NOT NULL ,
+    money INTEGER NOT NULL ,
+    CONSTRAINT config_pkey PRIMARY KEY (id)
+    );
 
 --insert du lieu
-Insert into goals(money) values('500000');
-Insert into goals(money) values('800000');
-Insert into goals(money) values('1000000');
+    INSERT INTO config(money) VALUES (200000);
+    INSERT INTO config(money) VALUES (400000);
+    INSERT INTO config(money) VALUES (600000);
+    INSERT INTO config(money) VALUES (1000000);
+    INSERT INTO config(money) VALUES (2000000);
+    INSERT INTO config(money) VALUES (3000000);
+    INSERT INTO config(money) VALUES (6000000);
+    INSERT INTO config(money) VALUES (10000000);
+    INSERT INTO config(money) VALUES (14000000);
+    INSERT INTO config(money) VALUES (22000000);
+    INSERT INTO config(money) VALUES (30000000);
+    INSERT INTO config(money) VALUES (40000000);
+    INSERT INTO config(money) VALUES (60000000);
+    INSERT INTO config(money) VALUES (85000000);
+    INSERT INTO config(money) VALUES (150000000);
 ....
 
 ```
@@ -201,35 +222,135 @@ CREATE OR REPLACE FUNCTION hoi_y_kien_khan_gia()
  SELECT hoi_y_kien_khan_gia();
 
 ```
+
+**Database hỏi khán giả **
+![image](images/hoikhangia.PNG "union")
 * **4.3 Truy vấn ngẫu nhiên đáp án cho 1 câu hỏi: 5đ (Câu hỏi gọi trợ giúp người thân) **
 
 ```
+CREATE OR REPLACE FUNCTION goi_dien_thoai_cho_nguoi_than(id INTEGER)
+    returns TABLE(res CHARACTER VARYING(50)) AS $$
+    DECLARE 
+    rand INTEGER;
+    BEGIN 
+        rand = round(randoms(1,4));
+        CASE
+            WHEN rand = 1 THEN RETURN QUERY SELECT questions.ask1 FROM questions WHERE questions.idquestion= $1;
+            WHEN rand = 2 THEN RETURN QUERY SELECT questions.ask2 FROM questions WHERE questions.idquestion= $1;
+            WHEN rand = 3 THEN RETURN QUERY SELECT questions.ask3 FROM questions WHERE questions.idquestion= $1;
+            ELSE RETURN QUERY SELECT questions.ask4 FROM questions WHERE questions.idquestion = $1;
+        END CASE ;
+    END 
+    $$
+    LANGUAGE plpgsql;
+
+    SELECT goi_dien_thoai_cho_nguoi_than(54);
 ```
+**Database gọi điện người thân **
+![image](images/goidiennguoithan.PNG "union")
 
 * **5.1 Nhập dữ liệu mẫu 100 người chơi:**
 
 ```
-create table users(
- iduser serial Not Null,
-  nameUser character varying(100) NOT NULL,
-  startDate time without time zone NOT NULL,
-  totalGoal character varying(100) NOT NULL,
-  CONSTRAINT user_pkey PRIMARY KEY(iduser)
+CREATE TABLE users(
+        id SERIAL NOT NULL ,
+        name CHARACTER VARYING(50) NOT NULL ,
+        starttime TIMESTAMP NOT NULL ,
+        money INTEGER NOT NULL,
+        CONSTRAINT users_pkey PRIMARY KEY (id)
+    )
+--tạo dữ liệu 100 người chơi
+CREATE OR REPLACE FUNCTION adduser()
+        RETURNS void AS $$
+        DECLARE 
+        ho CHARACTER VARYING(17);
+        dem CHARACTER VARYING(17);
+        ten CHARACTER VARYING(17);
+        rand INTEGER;
+    BEGIN 
+    FOR i IN 1..5
+        LOOP 
+            CASE 
+            WHEN i = 1 THEN ho = 'Nguyen';
+            WHEN i = 2 THEN ho = 'Le';
+            WHEN i = 3 THEN ho = 'Dang';
+            WHEN i = 4 THEN ho = 'Dinh';
+            ELSE ho = 'Tran';
+            END CASE ;
+    FOR j IN 1..5
+        LOOP
+            CASE
+            WHEN j = 1 THEN dem = 'Dang';
+            WHEN j = 2 THEN dem = 'Van';
+            WHEN j = 3 THEN dem = 'Thi';
+            WHEN j = 4 THEN dem = 'Cong';
+            ELSE dem = 'Hoang';
+            END CASE ;
+    FOR k IN 1..4
+        LOOP
+            CASE
+            WHEN k = 1 THEN ten = 'Trung';
+            WHEN k = 2 THEN ten = 'Cong';
+            WHEN k = 3 THEN ten = 'Khiem';
+            ELSE ten = 'Nam';
+            END CASE ;
+            rand = round(randoms(1,15));
+            INSERT INTO users(name,starttime,money) VALUES (concat(ho,' ',dem,' ',ten),now(),(SELECT money FROM config WHERE id = rand));
+            END LOOP ;
+        END LOOP ;
+    END LOOP ;
+    END 
 
-)
-Insert into users(nameUser,startDate,totalGoal) values
-('Vũ Công Hiếu',current_timestamp,'1200000');
-Insert into users(nameUser,startDate,totalGoal) values
-('Nguyễn Đăng Khiêm',current_timestamp,'1200000');
+    $$
+    LANGUAGE plpgsql;
+
+    SELECT adduser();
 ```
+
+**Database user **
+![image](images/randomuser.PNG "randomuser")
 * **5.2 Truy vấn lấy ra 10 người chơi đạt điểm cao nhất, sắp xếp theo thứ tựđiểm cao giảm dần (nếu 2 người chơi có cùng điểm số thì người chơi sau sẽ được xếp ở vị trí cao hơn):**
 
 ```
-select * from goals
-order by money
-Limit 10;
+select * from config order by money desc limit 10;
 ```
+**Database money top **
+![image](images/moneytop.PNG "moneytop")
 * **6.1 Tìm kiếm câu hỏi theo id, theo từ khóa trong câu hỏi, theo từ khóa trong câu trả lời:**
 
+```
 
+    CREATE OR REPLACE FUNCTION searchquestionss(n CHARACTER VARYING(50))
+        RETURNS TABLE(
+        
+  question CHARACTER VARYING(150),
+        ask1 CHARACTER VARYING(50),
+        ask2 CHARACTER VARYING(50),
+        ask3 CHARACTER VARYING(50),
+        ask4 CHARACTER VARYING(50)
+        ) AS $$
+            DECLARE
+        ch CHARACTER VARYING(50);
+        BEGIN
+        ch = concat('%',$1,'%');
+        return QUERY 
+        SELECT questions.question,questions.ask1,questions.ask2,questions.ask3,questions.ask4
+        FROM questions 
+        WHERE 
+            questions.question LIKE ch
+           OR questions.ask1 LIKE ch
+           OR questions.ask2 LIKE ch
+           OR questions.ask3 LIKE ch
+           OR questions.ask4 LIKE ch;
+    END 
 
+    $$
+    LANGUAGE plpgsql;
+
+    SELECT searchquestionss('1');
+```
+**Database search question **
+![image](images/search.PNG "search")
+
+                                   
+** Một số ý có tham khảo các team trong lớp đặc biệt bạn `Lâm Đức Trung`**
