@@ -1,0 +1,40 @@
+#!/bin/bash
+# Huong dan: Go lenh curl o duoi trong terminal ssh
+# curl https://raw.githubusercontent.com/kimthangatm/linux-tools/master/install-postgres-centos6 | sh
+dbUsername="postgres"
+dbPassword="1234567890"
+cd ~
+curl -O http://vault.centos.org/RPM-GPG-KEY-CentOS-6
+yum install -y wget
+cd /etc/yum.repos.d
+wget http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
+wget http://rpms.famillecollet.com/enterprise/remi.repo
+rpm -Uvh epel-release-6*.rpm
+echo "y" | yum localinstall http://yum.postgresql.org/9.4/redhat/rhel-6-x86_64/pgdg-centos94-9.4-1.noarch.rpm
+echo "y" | yum --enablerepo=remi install -y perl postgresql94-server
+service postgresql-9.4 initdb
+sed -i '18iexclude=postgresql*' /etc/yum.repos.d/CentOS-Base.repo
+sed -i '28iexclude=postgresql*' /etc/yum.repos.d/CentOS-Base.repo
+sed -i '10i-A INPUT -p tcp -m state --state NEW -m tcp --dport 80 -j ACCEPT' /etc/sysconfig/iptables
+sed -i '11i-A INPUT -p tcp -m state --state NEW -m tcp --dport 5432 -j ACCEPT' /etc/sysconfig/iptables
+perl -i -pe 's/ident/md5/g' /var/lib/pgsql/9.4/data/pg_hba.conf
+echo "host  all  all  0.0.0.0/0  md5" >> /var/lib/pgsql/9.4/data/pg_hba.conf
+echo "listen_addresses='*'" >> /var/lib/pgsql/9.4/data/postgresql.conf
+ln -s /usr/pgsql-9.4/bin/pg_config /usr/bin/pg_config
+chkconfig postgresql-9.4 on
+service postgresql-9.4 start
+su postgres -c "psql --command \"ALTER USER $dbUsername WITH PASSWORD '$dbPassword'\"";
+yum clean all
+setsebool -P httpd_can_network_connect 1
+service iptables restart
+
+echo "--------------------------------------------"
+echo "-----  INSTALL POSTGRESQL SUCCESSFULLY  ----"
+echo "--------------------------------------------"
+echo "--------------------------------------------"
+echo "- DB INFO:                                  "
+echo "- DB USERNAME   : $dbUsername               "
+echo "- DB PASSWORD   : $dbPassword               "
+echo "--------------------------------------------"
+
+Luu y: Tren centos thi yum thay the cho apt-get tren ubuntu linux
